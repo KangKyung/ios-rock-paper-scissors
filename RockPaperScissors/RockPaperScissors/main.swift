@@ -3,16 +3,18 @@
 //  Created by yagom.
 //  Copyright © yagom academy. All rights reserved.
 //
-<<<<<<< HEAD
-=======
+enum gamePlayer: String {
+    case player = "플레이어"
+    case computer = "컴퓨터"
+}
 
 class RockPaperScissorsGame {
     enum Hand: String, CaseIterable, Comparable {
-        static func < (lhs: RockPaperScissorsGame.Hand, rhs: RockPaperScissorsGame.Hand) -> Bool {
+        static func < (lhs: Hand, rhs: Hand) -> Bool {
             if (lhs == .scissors && rhs == .rock)
-                || (lhs == .paper && rhs == .scissors)
-                || (lhs == .rock && rhs == .paper) {
-                    return true
+            || (lhs == .paper && rhs == .scissors)
+            || (lhs == .rock && rhs == .paper) {
+                return true
             } else {
                 return false
             }
@@ -26,7 +28,7 @@ class RockPaperScissorsGame {
     enum GameError: Error {
         case invalidInput
     }
-
+    
     func startGame() {
         var isRepeat = false
         
@@ -35,10 +37,10 @@ class RockPaperScissorsGame {
                 continue
             }
             
-            var userHand: Hand
+            var playerHand: Hand
             do {
-                if let notNilUserHand = try getHandByUser() {
-                    userHand = notNilUserHand
+                if let notNilplayerHand = try getHandByplayer() {
+                    playerHand = notNilplayerHand
                 } else {
                     print("게임종료")
                     break
@@ -48,115 +50,96 @@ class RockPaperScissorsGame {
                 isRepeat = true
                 continue
             }
->>>>>>> ios-rock-paper-scissors/step1
+            
+            // test print
+            print("플레이어 : \(playerHand)")
+            print("컴퓨터 : \(computersHand)")
 
-            isRepeat = gameResult(userHand, vs: computersHand)
+            isRepeat = gameResult(playerHand, vs: computersHand)
         } while isRepeat
     }
     
-    func gameResult(_ usersHand: Hand, vs computersHand: Hand) -> Bool {
-        if usersHand == computersHand {
+    func gameResult(_ playersHand: Hand, vs computersHand: Hand) -> Bool {
+        if playersHand == computersHand {
             print("비겼습니다.")
             return true
-        } else if usersHand > computersHand {
+        } else if playersHand > computersHand {
             print("이겼습니다.")
+            MukjjibbaGame(winner: .player).startGame()
             return false
         } else {
             print("졌습니다.")
+            MukjjibbaGame(winner: .computer).startGame()
             return false
         }
     }
         
-    func getHandByUser() throws -> Hand? {
+    func getHandByplayer() throws -> Hand? {
         print("가위(1), 바위(2), 보(3)! <종료 : 0> : ", terminator: "")
         
-        guard let userInput = readLine() else {
+        guard let playerInput = readLine() else {
             throw GameError.invalidInput
         }
         
-        if userInput == "0" {
+        if playerInput == "0" {
             return nil
         }
         
-        guard let userHand = Hand(rawValue: userInput) else {
+        guard let playerHand = Hand(rawValue: playerInput) else {
             throw GameError.invalidInput
         }
 
-<<<<<<< HEAD
-class RockPaperScissorsGame {
-    enum Hand: String, CaseIterable, Comparable {
-        static func < (lhs: RockPaperScissorsGame.Hand, rhs: RockPaperScissorsGame.Hand) -> Bool {
-            if (lhs == .scissors && rhs == .rock)
-            || (lhs == .paper && rhs == .scissors)
-            || (lhs == .rock && rhs == .paper) {
-                return true
-            } else {
-                return false
-            }
-        }
-
-        case none = "0"
-        case scissors = "1"
-        case rock = "2"
-        case paper = "3"
+        return playerHand
     }
+}
 
-    enum GameError: Error {
-        case invalidInput
-    }
-
-    func startGame() {
-        var isRepeat = false
-        
-        repeat {
-            guard let computersHand = Hand.allCases.randomElement(),
-                  computersHand != .none else {
-                continue
-            }
-            
-            let userHand: Hand
-            
-            do {
-                userHand = try getHandByUser()
-            } catch {
-                print("잘못된 입력입니다. 다시 입력해주세요")
-                continue
-            }
-
-            isRepeat = gameResult(userHand, vs: computersHand)
-        } while isRepeat
+class MukjjibbaGame: RockPaperScissorsGame {
+    var winner: String
+    
+    init(winner: gamePlayer) {
+        self.winner = winner.rawValue
     }
     
-    func gameResult(_ usersHand: Hand, vs computersHand: Hand) -> Bool {
-        if usersHand == .none {
-            print("게임종료")
+    override func gameResult(_ playersHand: Hand, vs computersHand: Hand) -> Bool {
+        if playersHand == computersHand {
+            print("\(winner)의 승리!")
             return false
-        } else if usersHand == computersHand {
-            print("비겼습니다.")
+        } else if playersHand > computersHand {
+            winner = "플레이어"
+            print("\(winner)의 턴입니다")
             return true
-        } else if usersHand > computersHand {
-            print("이겼습니다.")
-            return false
         } else {
-            print("졌습니다.")
-            return false
+            winner = "컴퓨터"
+            print("\(winner)의 턴입니다")
+            return true
         }
     }
         
-    func getHandByUser() throws -> Hand {
-        print("가위(1), 바위(2), 보(3)! <종료 : 0> : ", terminator: "")
+    override func getHandByplayer() throws -> Hand? {
+        print("[\(winner) 턴] 묵(1), 찌(2), 빠(3)! <종료 : 0> : ", terminator: "")
         
-        guard let userInput = readLine() else {
+        guard var playerInput = readLine() else {
             throw GameError.invalidInput
         }
         
-        guard let userHand = Hand(rawValue: userInput) else {
+        switch(playerInput) {
+        case "0":
+            return nil
+        case "1":
+            playerInput = Hand.rock.rawValue
+        case "2":
+            playerInput = Hand.scissors.rawValue
+        case "3":
+            playerInput = Hand.paper.rawValue
+        default:
+            throw GameError.invalidInput
+        }
+        
+        guard let playerHand = Hand(rawValue: playerInput) else {
             throw GameError.invalidInput
         }
 
-=======
->>>>>>> ios-rock-paper-scissors/step1
-        return userHand
+        return playerHand
     }
 }
 
